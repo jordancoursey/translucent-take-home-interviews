@@ -11,11 +11,28 @@ from __future__ import annotations
 
 import argparse
 import functools
+import os
+import pathlib
 
-from generator.generator import GENERATOR_ID, generate
+from generator.generator import active_backend, generate
 from observability.tracing import log_trace
 from retrieval.embedding import BACKENDS, DEFAULT_BACKEND
 from retrieval.retriever import DEFAULT_THRESHOLD, Retriever
+
+def _load_dotenv() -> None:
+    """Read .env into the environment if present. No dependency required."""
+    path = pathlib.Path(__file__).resolve().parent / ".env"
+    if not path.exists():
+        return
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        os.environ.setdefault(key.strip(), value.strip())
+
+
+_load_dotenv()
 
 # Bump when the pipeline's behaviour changes, so tracked runs stay comparable.
 #   0.1.0  TF-IDF, fixed top-3 (baseline_agent)
@@ -49,7 +66,7 @@ def answer(
             retrieved_row_ids=rows.index,
             answer=text,
             retrieval_model=retriever.embedder.model_id,
-            generator_model=GENERATOR_ID,
+            generator_model=active_backend(),
             pipeline_version=PIPELINE_VERSION,
             threshold=threshold,
         )
