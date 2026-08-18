@@ -6,7 +6,7 @@ DATA_PATH = pathlib.Path(__file__).parent / "data" / "denials.csv"
 
 def load_docs():
     df = pd.read_csv(DATA_PATH)
-    docs = df.apply(lambda r: f"Department {r['department']} denied because {r['denial_reason']} on {r['date']}", axis=1).tolist()
+    docs = df.apply(lambda r: f"Department {r['department']} denied because {r['denial_reason']} on {r['service_date']}", axis=1).tolist()
     return docs, df
 
 def answer(question: str) -> str:
@@ -18,7 +18,8 @@ def answer(question: str) -> str:
     top_idx = sims.argsort()[-3:][::-1]
     rows = df.iloc[top_idx]
     reason_counts = rows['denial_reason'].value_counts().to_dict()
-    answer_parts = [f"{k}: {v}" for k,v in reason_counts.items()]
+    department_counts = rows['department'].value_counts().to_dict()
+    answer_parts = [f"{k}: {v}" for k,v in reason_counts.items()] + [f"{k}: {v}" for k,v in department_counts.items()]
     return " | ".join(answer_parts)
 
 if __name__ == "__main__":

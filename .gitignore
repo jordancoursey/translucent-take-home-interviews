@@ -216,3 +216,10 @@ tfplan*
 repo_info.json
 test.json
 .DS_Store
+
+# Embedding cache (regenerated on demand)
+ai_takehome/data/.embedding_cache/
+
+# Generated outputs (regenerated on demand)
+ai_takehome/results/
+ai_takehome/observability/traces/
